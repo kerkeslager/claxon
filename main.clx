@@ -1,4 +1,9 @@
+enum Token {
+  End,
+}
+
 fn main() {
-  print('Hello, world');
-  0
+  let sourceFile = open('main.clx', 'r');
+  let source = read(sourceFile);
+  print(source);
 }
