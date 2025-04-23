@@ -1,3 +1,5 @@
+#include <assert.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -38,6 +40,8 @@ char* readSource() {
     exit(1);
   }
 
+  fclose(f);
+
   source[sourceLength] = '\0';
 
   return source;
@@ -57,14 +61,48 @@ struct Token {
   size_t length;
 };
 
+void Token_init(Token* self, TokenType type, char* text, size_t length) {
+  self->type = type;
+  self->text = text;
+  self->length = length;
+}
+
+struct Scanner;
+typedef struct Scanner Scanner;
+struct Scanner {
+  char* source;
+  size_t line;
+  bool panic;
+};
+
+void Scanner_init(Scanner* self, char* source) {
+  self->source = source;
+  self->line = 1;
+  self->panic = false;
+}
+
+Token Scanner_scan(Scanner* self) {
+  Token result;
+
+  switch(*(self->source)) {
+    case '\0':
+      Token_init(&result, TOKEN_END, self->source, 0);
+      return result;
+
+    default:
+      assert(false);
+  }
+}
+
 int main() {
   char* source = readSource();
+
+  Scanner scanner;
+  Scanner_init(&scanner, source);
 
   printf("%s", source);
 
   free(source);
-
-  fclose(f);
 
   return 0;
 }

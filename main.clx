@@ -2,8 +2,28 @@ enum Token {
   End,
 }
 
+struct Scanner {
+  char* source;
+  size line;
+  bool panic;
+}
+
+fn Scanner_init(Scanner* self, char* source) {
+  self->source = source;
+  self->line = 1;
+  self->panic = false;
+}
+
+fn Scanner_scan(Scanner* self) {
+  match(self->source) {
+    '\0' => Token.End,
+    _ => assert(false)
+  }
+}
+
 fn main() {
   let sourceFile = open('main.clx', 'r');
   let source = read(sourceFile);
   print(source);
+  nil
 }
