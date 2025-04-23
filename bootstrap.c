@@ -67,6 +67,14 @@ void Token_init(Token* self, TokenType type, char* text, size_t length) {
   self->length = length;
 }
 
+void Token_println(Token token) {
+  switch(token.type) {
+    case TOKEN_END:
+      printf("END\n");
+      break;
+  }
+}
+
 struct Scanner;
 typedef struct Scanner Scanner;
 struct Scanner {
@@ -100,7 +108,11 @@ int main() {
   Scanner scanner;
   Scanner_init(&scanner, source);
 
-  printf("%s", source);
+  for(;;) {
+    Token token = Scanner_scan(&scanner);
+    Token_println(token);
+    if(token.type == TOKEN_END) break;
+  }
 
   free(source);
 

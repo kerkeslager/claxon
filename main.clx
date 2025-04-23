@@ -2,6 +2,14 @@ enum Token {
   End,
 }
 
+fn Token_println(Token token) {
+  match(token.type) {
+    End => {
+      print('END');
+    }
+  }
+}
+
 struct Scanner {
   char* source;
   size line;
@@ -24,6 +32,15 @@ fn Scanner_scan(Scanner* self) {
 fn main() {
   let sourceFile = open('main.clx', 'r');
   let source = read(sourceFile);
-  print(source);
+
+  Scanner scanner;
+  Scanner_init(&scanner, source);
+
+  loop {
+    let token = Scanner_scan(&scanner, source);
+    Token_println(token);
+    if(token.type == Token.End) break;
+  }
+
   nil
 }
