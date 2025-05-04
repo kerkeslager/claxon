@@ -4,6 +4,8 @@ import unittest
 
 class TokenType(enum.Enum):
     EOF = 1
+    KW_FN = 2
+    KW_LET = 3
 
 class Token(typing.NamedTuple):
     type: TokenType
@@ -12,6 +14,10 @@ class Token(typing.NamedTuple):
 
 class Scanner(object):
     WHITESPACE_CHARACTERS = set(' \t\r\n')
+    KEYWORDS = (
+        ('fn', TokenType.KW_FN),
+        ('let', TokenType.KW_LET),
+    )
 
     def __init__(self, source):
         self.source = source
@@ -26,7 +32,12 @@ class Scanner(object):
             self.index += 1
 
         if self.index == len(self.source):
-            return Token(TokenType.EOF, text='', line=self.line)
+            return Token(type=TokenType.EOF, text='', line=self.line)
+
+        for kw,t in self.KEYWORDS:
+            if self.source[self.index:].startswith(kw):
+                self.index += len(kw)
+                return Token(type=t, text=kw, line=self.line)
 
         raise Exception()
 
@@ -54,6 +65,21 @@ class ScannerTests(unittest.TestCase):
             scanner.scan(),
             Token(type=TokenType.EOF, text='', line=2),
         )
+
+    def test_scan_keywords(self):
+        KEYWORDS = (
+            ('fn', TokenType.KW_FN),
+            ('let', TokenType.KW_LET),
+        )
+
+        source = ' '.join(kw for kw,t in KEYWORDS)
+        scanner = Scanner(source)
+
+        for kw, t in KEYWORDS:
+            self.assertEqual(
+                scanner.scan(),
+                Token(type=t, text=kw, line=1),
+            )
 
 if __name__ == '__main__':
     unittest.main()
