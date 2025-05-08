@@ -4,6 +4,7 @@ import unittest
 
 class TokenType(enum.Enum):
     EOF = enum.auto()
+    INTEGER_LITERAL = enum.auto()
     KW_AND = enum.auto()
     KW_BREAK = enum.auto()
     KW_ELSE = enum.auto()
@@ -81,6 +82,7 @@ class Scanner(object):
         '<=': TokenType.OP_LESS_THAN_EQUALS,
         '!=': TokenType.OP_NOT_EQUALS,
     }
+    NUMBER_CHARACTERS = '0123456789'
     SYMBOL_BEGIN_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
     SYMBOL_CONTINUE_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_'
 
@@ -125,6 +127,15 @@ class Scanner(object):
                 self.index += 1
 
             return Token(type=TokenType.SYMBOL, text=self.source[start:self.index], line=self.line)
+
+        if self.source[self.index] in self.NUMBER_CHARACTERS:
+            start = self.index
+            self.index += 1
+
+            while self.index < len(self.source) and self.source[self.index] in self.NUMBER_CHARACTERS:
+                self.index += 1
+
+            return Token(type=TokenType.INTEGER_LITERAL, text=self.source[start:self.index], line=self.line)
 
         raise Exception('Unexpected character {} at {}'.format(
             self.source[self.index],
@@ -232,6 +243,14 @@ class ScannerTests(unittest.TestCase):
         self.assertEqual(
             scanner.scan(),
             Token(type=TokenType.SYMBOL, text='foo', line=1),
+        )
+
+    def test_scan_integers(self):
+        source = '42'
+        scanner = Scanner(source)
+        self.assertEqual(
+            scanner.scan(),
+            Token(type=TokenType.INTEGER_LITERAL, text='42', line=1),
         )
 
 if __name__ == '__main__':
